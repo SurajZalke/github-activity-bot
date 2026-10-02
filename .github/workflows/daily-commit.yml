@@ -1,0 +1,64 @@
+name: Daily Activity Commit
+
+on:
+  schedule:
+    # Runs every day at 12:00 UTC — adjust to your preferred time
+    # Use https://crontab.guru to customise the schedule
+    - cron: "0 12 * * *"
+
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  commit:
+    name: Make daily commit
+    runs-on: ubuntu-latest
+
+    # Give the job permission to push back to the repo
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT so the push counts as YOUR contribution
+          # Store it as a repository secret named GH_PAT
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run bot (update activity log)
+        run: node bot.js
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-activity-bot"
+          git config user.email "bot@users.noreply.github.com"
+
+      - name: Commit and push changes
+        run: |
+          git add activity.log
+          git diff --cached --quiet && echo "Nothing to commit" && exit 0
+          git commit -m "$(node -e "
+            const msgs = [
+              '🌱 Daily activity update',
+              '✅ Keeping the streak alive',
+              '🔥 Another day, another commit',
+              '💡 Daily progress log',
+              '🚀 Consistent effort, every day',
+              '📅 Daily contribution entry',
+              '🌿 Growing one commit at a time',
+              '⚡ Daily automation ping',
+              '🎯 Staying consistent',
+              '🛠️ Daily maintenance commit'
+            ];
+            console.log(msgs[Math.floor(Math.random()*msgs.length)]);
+          ")"
+          git push
