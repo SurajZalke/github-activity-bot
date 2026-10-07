@@ -22,8 +22,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Use GITHUB_TOKEN (works automatically) or GH_PAT for custom user
-          token: ${{ secrets.GH_PAT || github.token }}
           persist-credentials: true
 
       - name: Set up Node.js
@@ -40,7 +38,7 @@ jobs:
       - name: Configure git identity
         run: |
           git config user.name  "SurajZalke"
-          git config user.email "surajzalke724@gmail.com"
+          git config user.email "SurajZalke@users.noreply.github.com"
 
       - name: Commit and push changes
         run: |
